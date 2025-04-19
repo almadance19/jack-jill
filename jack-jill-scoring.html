@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Dance Competition Scoring</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 15px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    .form-container {
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .judge-info {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    @media (min-width: 768px) {
+      .judge-info {
+        flex-direction: row;
+      }
+    }
+    .judge-info div {
+      flex: 1;
+      min-width: 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+    .participant-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    @media (min-width: 480px) {
+      .participant-container {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+    .participant-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      background-color: #fff;
+    }
+    .participant-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .participant-number {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .score-input {
+      width: 60px;
+      text-align: center;
+      margin: 5px 0;
+      font-size: 0.9rem;
+    }
+    .participant-total {
+      font-weight: bold;
+      text-align: center;
+      margin-top: 10px;
+      padding: 5px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .submit-btn {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 20px;
+      width: 100%;
+    }
+    .submit-btn:hover {
+      background-color: #2980b9;
+    }
+    .delete-btn {
+      background-color: #ae0023;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 20px;
+      width: 100%;
+    }
+    .delete-btn:hover {
+      background-color: #ae0023;
+    }
+    #message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .info { color: blue; }
+    .add-participant {
+      background-color: #1f9c53;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    .order-participant {
+      background-color: #6733e1;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    @media (min-width: 480px) {
+      .add-participant {
+        width: auto;
+      }
+      .order-participant {
+        width: auto;
+      }
+    }
+    .add-participant:hover {
+      background-color: #27ae60;
+    }
+    .order-participant:hover {
+      background-color: #5e35b1;
+    }
+    .remove-btn {
+      color: red;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0 5px;
+    }
+
+    /* Confirmation dialog styles */
+    .dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .dialog-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 90%;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0 15px;
+    }
+    @media (min-width: 480px) {
+      .dialog-content {
+        max-width: 500px;
+      }
+    }
+    .dialog-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+    .dialog-btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      flex: 1;
+      transition: background-color 0.3s;
+    }
+    #confirmSubmit {
+      background-color: #2ecc71;
+      color: white;
+    }
+    #confirmSubmit:hover {
+      background-color: #27ae60;
+    }
+    #confirmCancel {
+      background-color: #e74c3c;
+      color: white;
+    }
+    #confirmCancel:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+    <div class="form-container">
+      <h1>Multi-Participant Dance Competition Scoring</h1>
+      
+      <div class="judge-info">
+        <div>
+          <label for="judgeName">Judge Name:</label>
+          <input type="text" id="judgeName" required>
+        </div>
+        <div>
+          <label for="category">Category:</label>
+          <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="Leader">Leader</option>
+            <option value="Follower">Follower</option>
+            <option value="Couple">Couple</option>
+          </select>
+        </div>
+        <div>
+          <label for="round">Round:</label>
+          <select id="round" required>
+            <option value="">Select Round</option>
+            <option value="Preliminary">Preliminary</option>
+            <option value="Semifinal">Semifinal</option>
+            <option value="Final">Final</option>
+          </select>
+        </div>
+      </div>
+      <button class="add-participant" onclick="addNumberParticipant()">Define Number of Participants</button>
+      <button class="add-participant" onclick="addParticipant()">Add Participant</button>
+      <button class="order-participant" onclick="sortParticipants()">Sort Participants by Total Score</button>
+      <button class="order-participant" onclick="sortParticipantsByNumber()">Sort Participants by Number</button>
+      
+      <div class="participant-container" id="participantsContainer">
+        <!-- Participant cards will be added here -->
+      </div>
+      <button class="order-participant" onclick="sortParticipants()">Sort Participants by Total Score</button>
+      <button class="order-participant" onclick="sortParticipantsByNumber()">Sort Participants by Number</button>
+      
+      
+      <button class="submit-btn" onclick="submitAllScores()">Submit All Scores</button>
+      
+      <div id="message"></div>
+    </div>
+    <div id="delete_responses">
+      <h2>Delete Responses</h2>
+      <p>Click the button below to delete your previous scoring for the selected Category and Round.</p>
+      <button class="delete-btn" onclick="deleteAllResponses()">Delete All Responses</button>
+    </div>
+  
+    <script>
+      let participantCount = 0;
+      const maxParticipants = 24;
+      
+      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyA5VAiNi4llnsTW5rNuwZusIHbBl7frRx72m8Q7fYvGJS2Ig4Les8_Y6govHLCN4Y/exec';
+      
+      document.addEventListener('DOMContentLoaded', function() {
+      });
+
+      async function checkPassword() {
+  const SCRIPT_URL_PASSWORD = 'https://script.google.com/macros/s/AKfycbzfp8woK1_89ucIPWJMOQAICDEItdCSnSAqfuQiBCeE37es9h13t8aPzPCEdk2JwWE/exec';
+
+  try {
+    fetch(SCRIPT_URL_PASSWORD)
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(function(data) {
+        const storedPassword = data.value;
+        const enteredPassword = prompt("Please enter the password to access the scoring system:");
+
+        if (enteredPassword === storedPassword) {
+          alert("Password correct. Access granted.");
+          // Proceed with your application logic
+        } else {
+          alert("Incorrect password. Access denied.");
+          window.location.href = "https://frankfurt-bachata-marathon.de/";
+        }
+      })
+      .catch(function(error) {
+        console.error("There was an error fetching the password:", error);
+        alert("Failed to retrieve password. Please try again later.");
+        window.location.href = "https://frankfurt-bachata-marathon.de/";
+      });
+  } catch (error) {
+    // This catch block is no longer strictly necessary for handling fetch errors
+    // as those are handled within the Promise chain's .catch()
+    console.error("An unexpected error occurred:", error);
+  }
+}
+
+      function addNumberParticipant() {
+        const numberOfParticipants = prompt("Enter the number of participants (1-24):");
+        if (numberOfParticipants < 1 || numberOfParticipants > maxParticipants) {
+          alert(`Please enter a number between 1 and ${maxParticipants}`);
+          return;
+        }
+        
+        for (let i = 0; i < numberOfParticipants; i++) {
+          addParticipant();
+        }
+      }
+
+      function sortParticipants() {
+        const container = document.getElementById('participantsContainer');
+        const cards = Array.from(container.children);
+        
+        cards.sort((a, b) => {
+          const totalA = parseInt(a.querySelector('.participant-total span').textContent);
+          const totalB = parseInt(b.querySelector('.participant-total span').textContent);
+          return totalB - totalA; // Sort in descending order
+        });
+        
+        cards.forEach(card => container.appendChild(card));
+      }
+
+      function sortParticipantsByNumber() {
+        const container = document.getElementById('participantsContainer');
+        const cards = Array.from(container.children);
+        
+        cards.sort((a, b) => {
+          const numberA = parseInt(a.id.split('-')[1]);
+          const numberB = parseInt(b.id.split('-')[1]);
+          return numberA - numberB; // Sort in ascending order
+        });
+        
+        cards.forEach(card => container.appendChild(card));
+      }
+
+      function deleteAllResponses() {
+  const category = document.getElementById('category').value;
+  const round = document.getElementById('round').value;
+  const judgeName = document.getElementById('judgeName').value;
+  const keyToDelete = judgeName + category + round;
+
+  if (!category || !round || !judgeName) {
+    alert("Please fill all judge information fields before deleting responses.");
+    return;
+  }
+
+  // Build URL with GET parameters
+  const url = new URL('https://script.google.com/macros/s/AKfycbwE9aO-6Slxrftf8UvchSyMvtm8ynLikwtNr30lrHjgzypvBm4N2mVMzs0lnX0dB0A/exec');
+  url.searchParams.append('keytodelete', keyToDelete);
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.message);
+      } else {
+        alert("Error deleting responses: " + data.message);
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("Failed to delete responses: " + error.message);
+    });
+}
+      
+      function addParticipant() {
+        if (participantCount >= maxParticipants) {
+          alert(`Maximum of ${maxParticipants} participants reached`);
+          return;
+        }
+        
+        participantCount++;
+        const container = document.getElementById('participantsContainer');
+        
+        const card = document.createElement('div');
+        card.className = 'participant-card';
+        card.id = `participant-${participantCount}`;
+        
+        card.innerHTML = `
+          <div class="participant-header">
+            <span class="participant-number">Participant #${participantCount}</span>
+            <button class="remove-btn" onclick="removeParticipant(${participantCount})">×</button>
+          </div>
+          <div>
+            <label>Number/ID:</label>
+            <input type="text" id="coupleNumber-${participantCount}" value="${participantCount}" required>
+          </div>
+          <div>
+            <label>Creativity (1-5):</label>
+            <input type="number" id="creativity-${participantCount}" class="score-input" min="1" max="5" required onchange="calculateTotal(${participantCount})">
+          </div>
+          <div>
+            <label>Expression (1-5):</label>
+            <input type="number" id="expression-${participantCount}" class="score-input" min="1" max="5" required onchange="calculateTotal(${participantCount})">
+          </div>
+          <div>
+            <label>Connection (1-5):</label>
+            <input type="number" id="connection-${participantCount}" class="score-input" min="1" max="5" required onchange="calculateTotal(${participantCount})">
+          </div>
+          <div>
+            <label>Musicality (1-5):</label>
+            <input type="number" id="musicality-${participantCount}" class="score-input" min="1" max="5" required onchange="calculateTotal(${participantCount})">
+          </div>
+          <div>
+            <label>Technique (1-5):</label>
+            <input type="number" id="technique-${participantCount}" class="score-input" min="1" max="5" required onchange="calculateTotal(${participantCount})">
+          </div>
+          <div class="participant-total">
+            Total: <span id="total-${participantCount}">0</span>
+          </div>
+        `;
+        
+        container.appendChild(card);
+      }
+      
+      function removeParticipant(id) {
+        if (participantCount <= 1) {
+          alert("You must have at least one participant");
+          return;
+        }
+        
+        const card = document.getElementById(`participant-${id}`);
+        card.remove();
+        participantCount--;
+        
+        // Renumber remaining participants
+        const cards = document.querySelectorAll('.participant-card');
+        cards.forEach((card, index) => {
+          const newNumber = index + 1;
+          card.querySelector('.participant-number').textContent = `Participant #${newNumber}`;
+          card.id = `participant-${newNumber}`;
+        });
+      }
+      
+      function calculateTotal(participantId) {
+        const creativity = parseInt(document.getElementById(`creativity-${participantId}`).value) || 0;
+        const expression = parseInt(document.getElementById(`expression-${participantId}`).value) || 0;
+        const connection = parseInt(document.getElementById(`connection-${participantId}`).value) || 0;
+        const musicality = parseInt(document.getElementById(`musicality-${participantId}`).value) || 0;
+        const technique = parseInt(document.getElementById(`technique-${participantId}`).value) || 0;
+        
+        const total = creativity + expression + connection + musicality + technique;
+        document.getElementById(`total-${participantId}`).textContent = total;
+      }
+      
+      async function submitAllScores() {
+    // First show confirmation dialog
+    const isConfirmed = await showConfirmationDialog();
+    if (!isConfirmed) {
+      showMessage("Submission cancelled", "info");
+      return;
+    }
+    
+    // Get judge information
+    const judgeName = document.getElementById('judgeName').value;
+    const category = document.getElementById('category').value;
+    const round = document.getElementById('round').value;
+    
+    // Validate inputs
+    if (!judgeName || !category || !round) {
+      showMessage("Please fill all judge information fields", "error");
+      return;
+    }
+    
+    // Validate all participant scores
+    let allScoresValid = true;
+    const firstInvalidParticipant = [];
+    
+    for (let i = 1; i <= participantCount; i++) {
+      if (!document.getElementById(`participant-${i}`)) continue;
+      
+      const creativity = document.getElementById(`creativity-${i}`).value;
+      const expression = document.getElementById(`expression-${i}`).value;
+      const connection = document.getElementById(`connection-${i}`).value;
+      const musicality = document.getElementById(`musicality-${i}`).value;
+      const technique = document.getElementById(`technique-${i}`).value;
+      
+      // Check if any score is empty or 0
+      if (!creativity || !expression || !connection || !musicality || !technique ||
+          creativity <= 0 || expression <= 0 || connection <= 0 || musicality <= 0 || technique <= 0) {
+        allScoresValid = false;
+        firstInvalidParticipant.push(i);
+        break;
+      }
+    }
+    
+    if (!allScoresValid) {
+      showMessage(`Error: Participant #${firstInvalidParticipant[0]} has invalid scores. All scores must be between 1 and 10.`, "error");
+      // Scroll to the first invalid participant
+      document.getElementById(`participant-${firstInvalidParticipant[0]}`).scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+      return;
+    }
+    
+    // Collect all participant scores (only if validation passed)
+    const scores = [];
+    for (let i = 1; i <= participantCount; i++) {
+      if (!document.getElementById(`participant-${i}`)) continue;
+      
+      scores.push({
+        coupleNumber: category+' '+document.getElementById(`coupleNumber-${i}`).value,
+        creativity: document.getElementById(`creativity-${i}`).value,
+        expression: document.getElementById(`expression-${i}`).value,
+        connection: document.getElementById(`connection-${i}`).value,
+        musicality: document.getElementById(`musicality-${i}`).value,
+        technique: document.getElementById(`technique-${i}`).value,
+        totalScore: parseInt(document.getElementById(`total-${i}`).textContent)
+      });
+    }
+    
+    // Prepare URL parameters
+    const params = new URLSearchParams();
+    params.append('judgeName', judgeName);
+    params.append('category', category);
+    params.append('round', round);
+    params.append('scores', JSON.stringify(scores));
+    
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        showMessage(result.message, "success");
+        // reset the form
+        document.getElementById('judgeName').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('round').value = '';
+        const container = document.getElementById('participantsContainer');
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
+        participantCount = 0;
+        addParticipant();
+      } else {
+        showMessage("Error: " + result.message, "error");
+      }
+    } catch (error) {
+      showMessage("Failed to submit scores: " + error.message, "error");
+    }
+  }
+      
+      function showMessage(text, type) {
+        const messageDiv = document.getElementById('message');
+        messageDiv.textContent = text;
+        messageDiv.className = type;
+      }
+
+      function showConfirmationDialog() {
+        return new Promise((resolve) => {
+          // Create dialog elements
+          const dialog = document.createElement('div');
+          dialog.className = 'dialog-overlay';
+          
+          const dialogContent = document.createElement('div');
+          dialogContent.className = 'dialog-content';
+          
+          dialogContent.innerHTML = `
+            <h3 style="margin-top: 0;">Confirm Score Submission</h3>
+            <p>You are about to submit scores for ${participantCount} participants.</p>
+            <p>Please review all scores before confirming.</p>
+            <div class="dialog-buttons">
+              <button id="confirmCancel" class="dialog-btn">Cancel</button>
+              <button id="confirmSubmit" class="dialog-btn">Submit Scores</button>
+            </div>
+          `;
+          
+          dialog.appendChild(dialogContent);
+          document.body.appendChild(dialog);
+          
+          // Handle button clicks
+          document.getElementById('confirmSubmit').addEventListener('click', () => {
+            document.body.removeChild(dialog);
+            resolve(true);
+          });
+          
+          document.getElementById('confirmCancel').addEventListener('click', () => {
+            document.body.removeChild(dialog);
+            resolve(false);
+          });
+        });
+      }
+    </script>
+</body>
+</html>

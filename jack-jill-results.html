@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition Results</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --highlight-color: #fffacd;
+            --first-place: #f1c40f;
+            --second-place: #95a5a6;
+            --third-place: #e67e22;
+            --text-color: #333;
+            --light-gray: #f5f7fa;
+            --medium-gray: #ddd;
+            --dark-gray: #7f8c8d;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        
+        h1 {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 14px;
+            flex: 1 1 150px;
+        }
+        
+        .results-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        
+        .results-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+        
+        .results-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--medium-gray);
+            font-size: 14px;
+        }
+        
+        .results-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .results-table tr:hover {
+            background-color: #e8f4fc;
+        }
+        
+        .category-score {
+            display: inline-block;
+            width: 50px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .total-score {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .judge-list {
+            font-size: 12px;
+            color: var(--dark-gray);
+            white-space: nowrap;
+        }
+        
+        .highlight {
+            background-color: var(--highlight-color);
+        }
+        
+        .podium {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .podium-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 100px;
+            max-width: 150px;
+        }
+        
+        .podium-place {
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .first {
+            background-color: var(--first-place);
+            height: 120px;
+            order: 2;
+        }
+        
+        .second {
+            background-color: var(--second-place);
+            height: 90px;
+            order: 1;
+        }
+        
+        .third {
+            background-color: var(--third-place);
+            height: 60px;
+            order: 3;
+        }
+        
+        .participant-name {
+            margin-top: 5px;
+            font-weight: bold;
+            text-align: center;
+            word-break: break-word;
+        }
+        
+        .podium-points {
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .container {
+        min-height: 100vh; /* Full viewport height */
+        display: flex;
+        flex-direction: column;
+    }
+    
+
+    
+    .results-table {
+        flex-grow: 1; /* Makes table expand to fill available space */
+    }
+    
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .filters {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            select, input {
+                width: 100%;
+                flex: 1 1 auto;
+            }
+            
+            .podium {
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .podium-step {
+                flex-direction: row;
+                align-items: center;
+                min-width: 80%;
+                max-width: 90%;
+                gap: 15px;
+                padding: 5px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+            }
+            
+            .podium-place {
+                width: 50px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                font-size: 20px;
+                flex-shrink: 0;
+            }
+            
+            .first, .second, .third {
+                height: 50px;
+            }
+            
+            .podium-info {
+                flex-grow: 1;
+                text-align: left;
+            }
+            
+            .participant-name {
+                margin-top: 0;
+                text-align: left;
+            }
+            
+            .podium-points {
+                text-align: left;
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .results-table th, 
+            .results-table td {
+                padding: 6px 8px;
+                font-size: 13px;
+            }
+            
+            .category-score {
+                width: 40px;
+            }
+            
+            .podium-step {
+                min-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <h1>Competition Results</h1>
+        
+        <div class="filters">
+            <select id="categoryFilter">
+                <option value="">All Categories</option>
+                <option value="Bachata">Bachata</option>
+                <option value="Salsa">Salsa</option>
+                <option value="Kizomba">Kizomba</option>
+            </select>
+            
+            <select id="roundFilter">
+                <option value="">All Rounds</option>
+                <option value="Preliminary">Preliminary</option>
+                <option value="Semifinal">Semifinal</option>
+                <option value="Final">Final</option>
+            </select>
+            
+            <input type="text" id="searchInput" placeholder="Search participants...">
+        </div>
+        
+        <div class="podium" id="podium">
+            <!-- Podium will be generated by JavaScript -->
+        </div>
+        
+        <div class="results-container">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Participant</th>
+                        <th>Participant Name</th>
+                        <th>Category</th>
+                        <th>Round</th>
+                        <th>Total</th>
+                        <th title="Creativity">Creat.</th>
+                        <th title="Expression">Expr.</th>
+                        <th title="Connection">Conn.</th>
+                        <th title="Musicality">Music.</th>
+                        <th title="Technique">Tech.</th>
+                        <th>Judges</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Results will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Global variable to store results data
+        let resultsData = [];
+
+        window.addEventListener('DOMContentLoaded', getInit);
+
+        function getInit() {
+            getData();
+        }
+
+        function getData() {
+            // Replace with your Google Apps Script web app URL
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbz66DU6yUCCJXXrzR9RVdOt8lJ4DPWosScchU60Sj-pp9rB8ouxU4A72HhXDR2xmR0/exec';
+            
+            fetch(scriptUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.data) {
+                        resultsData = data.data;
+                        
+                        // Sort by total score descending
+                        resultsData.sort((a, b) => b.total - a.total);
+                        
+                        // Initialize filters
+                        initFilters();
+                        
+                        // Render the results
+                        renderResults();
+                    } else {
+                        console.error('Data format error:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    // You might want to show an error message to the user
+                });
+        }
+
+        function initFilters() {
+            // Get unique categories and rounds for filter dropdowns
+            const categories = [...new Set(resultsData.map(item => item.category))];
+            const rounds = [...new Set(resultsData.map(item => item.round))];
+            
+            const categoryFilter = document.getElementById('categoryFilter');
+            const roundFilter = document.getElementById('roundFilter');
+            
+            // Add "All" option
+            categoryFilter.innerHTML = '<option value="">All Categories</option>';
+            roundFilter.innerHTML = '<option value="">All Rounds</option>';
+            
+            // Populate category filter
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+            
+            // Populate round filter
+            rounds.forEach(round => {
+                const option = document.createElement('option');
+                option.value = round;
+                option.textContent = round;
+                roundFilter.appendChild(option);
+            });
+            
+            // Add event listeners
+            categoryFilter.addEventListener('change', filterResults);
+            roundFilter.addEventListener('change', filterResults);
+            document.getElementById('searchInput').addEventListener('input', filterResults);
+        }
+
+        function renderResults(filteredData = resultsData) {
+            const resultsBody = document.getElementById('resultsBody');
+            resultsBody.innerHTML = '';
+            
+            // Create podium
+            const podiumData = [...filteredData].slice(0, 3);
+            renderPodium(podiumData);
+            
+            // Render table rows
+            filteredData.forEach((participant, index) => {
+                const row = document.createElement('tr');
+                
+                // Highlight podium winners
+                if (index < 3) {
+                    row.classList.add('highlight');
+                }
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${participant.participant}</td>
+                    <td>${participant.participantName}</td>
+                    <td>${participant.category}</td>
+                    <td>${participant.round}</td>
+                    <td><span class="total-score">${participant.total}</span></td>
+                    <td><span class="category-score">${participant.creativity}</span></td>
+                    <td><span class="category-score">${participant.expression}</span></td>
+                    <td><span class="category-score">${participant.connection}</span></td>
+                    <td><span class="category-score">${participant.musicality}</span></td>
+                    <td><span class="category-score">${participant.technique}</span></td>
+                    <td><div class="judge-list">${participant.judges.join(', ')}</div></td>
+                `;
+                
+                resultsBody.appendChild(row);
+            });
+        }
+
+        function renderPodium(topThree) {
+            const podium = document.getElementById('podium');
+            podium.innerHTML = '';
+            
+            if (topThree.length === 0) return;
+            
+            if (window.innerWidth <= 768) {
+                // Mobile layout - vertical list
+                topThree.forEach((participant, index) => {
+                    const placeClass = index === 0 ? 'first' : 
+                                     index === 1 ? 'second' : 'third';
+                    const placeNumber = index + 1;
+                    
+                    const podiumStep = document.createElement('div');
+                    podiumStep.className = 'podium-step';
+                    podiumStep.innerHTML = `
+                        <div class="podium-place ${placeClass}">${placeNumber}</div>
+                        <div class="podium-info">
+                            <div class="participant-name">${participant.participant}</div>
+                            <div class="podium-points">${participant.total} points</div>
+                        </div>
+                    `;
+                    podium.appendChild(podiumStep);
+                });
+            } else {
+                // Desktop layout - traditional podium
+                if (topThree.length > 1) {
+                    // Second place
+                    const secondPlace = document.createElement('div');
+                    secondPlace.className = 'podium-step';
+                    secondPlace.innerHTML = `
+                        <div class="podium-place second">2</div>
+                        <div class="participant-name">${topThree[1].participant}</div>
+                        <div class="podium-points">${topThree[1].total} points</div>
+                    `;
+                    podium.appendChild(secondPlace);
+                }
+                
+                if (topThree.length > 0) {
+                    // First place
+                    const firstPlace = document.createElement('div');
+                    firstPlace.className = 'podium-step';
+                    firstPlace.innerHTML = `
+                        <div class="podium-place first">1</div>
+                        <div class="participant-name">${topThree[0].participant}</div>
+                        <div class="podium-points">${topThree[0].total} points</div>
+                    `;
+                    podium.appendChild(firstPlace);
+                }
+                
+                if (topThree.length > 2) {
+                    // Third place
+                    const thirdPlace = document.createElement('div');
+                    thirdPlace.className = 'podium-step';
+                    thirdPlace.innerHTML = `
+                        <div class="podium-place third">3</div>
+                        <div class="participant-name">${topThree[2].participant}</div>
+                        <div class="podium-points">${topThree[2].total} points</div>
+                    `;
+                    podium.appendChild(thirdPlace);
+                }
+            }
+        }
+
+        function filterResults() {
+            const category = document.getElementById('categoryFilter').value;
+            const round = document.getElementById('roundFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = resultsData.filter(participant => {
+                return (category === '' || participant.category === category) &&
+                       (round === '' || participant.round === round) &&
+                       (search === '' || participant.participant.toLowerCase().includes(search));
+            });
+            
+            renderResults(filtered);
+        }
+        
+        // Handle window resize to update podium layout
+        window.addEventListener('resize', function() {
+            if (resultsData.length > 0) {
+                const podiumData = [...resultsData].slice(0, 3);
+                renderPodium(podiumData);
+            }
+        });
+    </script>
+</body>
+</html>
